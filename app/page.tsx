@@ -47,6 +47,7 @@ type PageView =
   | 'game-music'
   | 'game-color-match'
   | 'game-puzzle'
+  | 'game-memory-cards'
 
 export default function Home() {
   const [currentView, setCurrentView] = useState<PageView>('landing')

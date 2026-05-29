@@ -3,14 +3,14 @@ import { motion } from 'framer-motion'
 import { Card } from '@/components/ui/Card'
 import { ProgressBar } from '@/components/ui/ProgressBar'
 import { useKidVerseStore } from '@/store/useStore'
-import { Star, Coins, Zap, Heart, Shirt, Sparkles, ChevronRight } from 'lucide-react'
+import { Star, Coins, Zap, Heart, Shirt, Sparkles, ChevronRight, User } from 'lucide-react'
 
 interface CharacterProfileProps {
   onClose: () => void
 }
 
 const CharacterProfile = ({ onClose }: CharacterProfileProps) => {
-  const { user, character, updateCharacterOutfit } = useKidVerseStore()
+  const { user, character, updateCharacterOutfit, updateCharacterAvatar, getAnimalAvatars } = useKidVerseStore()
   const [activeTab, setActiveTab] = useState('stats')
 
   const outfits = [
@@ -19,6 +19,10 @@ const CharacterProfile = ({ onClose }: CharacterProfileProps) => {
     { id: 'astronaut', name: '宇航员', emoji: '🚀' },
     { id: 'princess', name: '公主', emoji: '👑' },
   ]
+
+  const animalAvatars = getAnimalAvatars()
+
+  const isAnimalAvatar = character.avatarType === 'animal'
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-100 to-blue-100 p-4">
@@ -44,7 +48,7 @@ const CharacterProfile = ({ onClose }: CharacterProfileProps) => {
         <div className="relative">
           <div className="w-32 h-32 rounded-full bg-gradient-to-br from-kid-blue to-kid-purple p-1">
             <div className="w-full h-full rounded-full bg-white flex items-center justify-center">
-              <span className="text-6xl">🦸</span>
+              <span className="text-6xl">{isAnimalAvatar ? character.avatar : '🦸'}</span>
             </div>
           </div>
           <motion.div
@@ -111,6 +115,16 @@ const CharacterProfile = ({ onClose }: CharacterProfileProps) => {
           技能树
         </button>
         <button
+          onClick={() => setActiveTab('avatar')}
+          className={`flex-1 py-2 rounded-xl font-medium transition-all ${
+            activeTab === 'avatar' 
+              ? 'bg-gradient-to-r from-kid-blue to-kid-purple text-white' 
+              : 'bg-white text-gray-600'
+          }`}
+        >
+          小动物头像
+        </button>
+        <button
           onClick={() => setActiveTab('outfit')}
           className={`flex-1 py-2 rounded-xl font-medium transition-all ${
             activeTab === 'outfit' 
@@ -147,6 +161,50 @@ const CharacterProfile = ({ onClose }: CharacterProfileProps) => {
                 <p className="text-sm text-gray-500">{skill.description}</p>
               </div>
             ))}
+          </div>
+        </Card>
+      )}
+      
+      {activeTab === 'avatar' && (
+        <Card className="p-4">
+          <h4 className="font-bold text-gray-800 mb-4">选择小动物头像</h4>
+          <div className="grid grid-cols-4 gap-3">
+            {animalAvatars.map((avatar) => (
+              <motion.button
+                key={avatar.id}
+                onClick={() => updateCharacterAvatar(avatar.emoji, 'animal')}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                className={`p-3 rounded-xl border-2 transition-all flex flex-col items-center gap-1 ${
+                  character.avatar === avatar.emoji
+                    ? 'border-kid-blue bg-kid-blue/10'
+                    : 'border-gray-200 bg-white hover:border-kid-blue/50'
+                }`}
+              >
+                <span className="text-3xl">{avatar.emoji}</span>
+                <span className="text-xs text-gray-600">{avatar.name}</span>
+                {character.avatar === avatar.emoji && (
+                  <div className="absolute top-1 right-1 w-4 h-4 bg-kid-blue rounded-full flex items-center justify-center">
+                    <Star className="w-3 h-3 text-white fill-white" />
+                  </div>
+                )}
+              </motion.button>
+            ))}
+          </div>
+          <div className="mt-4 pt-4 border-t border-gray-100">
+            <motion.button
+              onClick={() => updateCharacterAvatar('🦸', 'default')}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className={`w-full py-3 rounded-xl font-medium transition-all flex items-center justify-center gap-2 ${
+                !isAnimalAvatar
+                  ? 'bg-gradient-to-r from-kid-blue to-kid-purple text-white'
+                  : 'bg-gray-100 text-gray-600'
+              }`}
+            >
+              <User className="w-5 h-5" />
+              <span>恢复默认头像</span>
+            </motion.button>
           </div>
         </Card>
       )}

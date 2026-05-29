@@ -71,15 +71,19 @@ const TopNav = ({ onMenuToggle, onParentMode }: TopNavProps) => {
               whileHover={{ scale: 1.05 }}
               className="relative cursor-pointer"
             >
-              <div className="w-10 h-10 md:w-12 md:h-12 rounded-full overflow-hidden border-2 border-kid-blue shadow-lg">
-                <Image
-                  src={character.avatar}
-                  alt={character.name}
-                  width={50}
-                  height={50}
-                  className="object-cover"
-                  unoptimized
-                />
+              <div className="w-10 h-10 md:w-12 md:h-12 rounded-full overflow-hidden border-2 border-kid-blue shadow-lg bg-white flex items-center justify-center">
+                {character.avatarType === 'animal' ? (
+                  <span className="text-xl md:text-2xl">{character.avatar}</span>
+                ) : (
+                  <Image
+                    src={character.avatar}
+                    alt={character.name}
+                    width={50}
+                    height={50}
+                    className="object-cover"
+                    unoptimized
+                  />
+                )}
               </div>
               <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-kid-green rounded-full border-2 border-white" />
             </motion.div>

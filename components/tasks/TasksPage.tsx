@@ -1,17 +1,23 @@
 import { motion } from 'framer-motion'
 import { Card } from '@/components/ui/Card'
 import { useKidVerseStore } from '@/store/useStore'
-import { Calculator, BookOpen, Brain, Palette, Check, Coins, Zap, Star, ChevronRight } from 'lucide-react'
+import { Calculator, BookOpen, Brain, Palette, Check, Coins, Zap, Star, ChevronRight, RefreshCw, Calendar } from 'lucide-react'
 
 interface TasksPageProps {
   onBack: () => void
 }
 
 const TasksPage = ({ onBack }: TasksPageProps) => {
-  const { dailyTasks, completeDailyTask } = useKidVerseStore()
+  const { dailyTasks, completeDailyTask, refreshDailyTasks, lastTaskRefresh } = useKidVerseStore()
 
   const completedCount = dailyTasks.filter(t => t.completed).length
   const totalCount = dailyTasks.length
+  const today = new Date().toISOString().split('T')[0]
+  const isToday = lastTaskRefresh === today
+
+  const handleRefresh = () => {
+    refreshDailyTasks()
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-blue-50 to-indigo-50 p-4">
@@ -25,7 +31,24 @@ const TasksPage = ({ onBack }: TasksPageProps) => {
           <span>返回</span>
         </button>
         <h2 className="text-xl font-bold gradient-text">每日任务</h2>
-        <div className="w-16" />
+        <motion.button
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={handleRefresh}
+          className="p-2 rounded-xl bg-white shadow-md hover:shadow-lg transition-shadow"
+          title="刷新今日任务"
+        >
+          <RefreshCw className={`w-5 h-5 ${isToday ? 'text-gray-400' : 'text-kid-blue'}`} />
+        </motion.button>
+      </div>
+      
+      {/* Refresh status */}
+      <div className="flex items-center gap-2 mb-4 text-sm text-gray-500">
+        <Calendar className="w-4 h-4" />
+        <span>今日任务已更新于 {lastTaskRefresh}</span>
+        {!isToday && (
+          <span className="text-kid-green font-medium">点击刷新获取新任务</span>
+        )}
       </div>
       
       {/* Progress */}

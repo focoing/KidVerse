@@ -6,7 +6,7 @@ export interface Level {
   worldColor: string
   position: { x: number; y: number }
   locked: boolean
-  type: 'math' | 'english' | 'emotion' | 'language' | 'cooperation' | 'friends' | 'art' | 'music'
+  type: 'math' | 'english' | 'emotion' | 'language' | 'cooperation' | 'friends' | 'art' | 'music' | 'focus' | 'puzzle' | 'logic'
   difficulty: 1 | 2 | 3
   stars: number
   bestScore?: number

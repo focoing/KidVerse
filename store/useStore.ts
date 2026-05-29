@@ -29,6 +29,7 @@ export interface Character {
   id: string
   name: string
   avatar: string
+  avatarType: 'animal' | 'default'
   level: number
   skills: Skill[]
   outfits: string[]
@@ -109,6 +110,7 @@ interface KidVerseState {
   
   // Daily Tasks
   dailyTasks: DailyTask[]
+  lastTaskRefresh: string
   
   // Settings
   settings: {
@@ -135,6 +137,46 @@ interface KidVerseState {
   incrementStreak: () => void
   resetStreak: () => void
   addPlayTime: (minutes: number) => void
+  refreshDailyTasks: () => void
+  updateCharacterAvatar: (avatar: string, avatarType: 'animal' | 'default') => void
+  getAnimalAvatars: () => typeof animalAvatars
+}
+
+const animalAvatars = [
+  { id: 'cat', emoji: '🐱', name: '小猫咪' },
+  { id: 'dog', emoji: '🐶', name: '小狗' },
+  { id: 'rabbit', emoji: '🐰', name: '小兔子' },
+  { id: 'bear', emoji: '🐻', name: '小熊' },
+  { id: 'panda', emoji: '🐼', name: '熊猫' },
+  { id: 'fox', emoji: '🦊', name: '狐狸' },
+  { id: 'owl', emoji: '🦉', name: '猫头鹰' },
+  { id: 'deer', emoji: '🦌', name: '小鹿' },
+]
+
+const dailyTaskTemplates = [
+  { title: '学习数学', description: '完成1个数学关卡', icon: 'Calculator', reward: { gold: 50, xp: 100, stars: 1 } },
+  { title: '阅读英语', description: '完成1个英语关卡', icon: 'BookOpen', reward: { gold: 50, xp: 100, stars: 1 } },
+  { title: '记忆挑战', description: '完成1个记忆游戏', icon: 'Brain', reward: { gold: 30, xp: 60, stars: 1 } },
+  { title: '创意创作', description: '完成1次绘画', icon: 'Palette', reward: { gold: 40, xp: 80, stars: 1 } },
+  { title: '音乐律动', description: '完成1个音乐关卡', icon: 'Music', reward: { gold: 40, xp: 80, stars: 1 } },
+  { title: '情绪探索', description: '完成1个情绪识别关卡', icon: 'Smile', reward: { gold: 35, xp: 70, stars: 1 } },
+  { title: '合作游戏', description: '完成1个合作游戏', icon: 'Users', reward: { gold: 50, xp: 100, stars: 1 } },
+  { title: '语言练习', description: '完成1个语言表达关卡', icon: 'MessageCircle', reward: { gold: 45, xp: 90, stars: 1 } },
+]
+
+function generateDailyTasks(): DailyTask[] {
+  const shuffled = [...dailyTaskTemplates].sort(() => Math.random() - 0.5)
+  return shuffled.slice(0, 4).map((template, index) => ({
+    id: `task-${index + 1}-${Date.now()}`,
+    ...template,
+    completed: false,
+    progress: 0,
+    target: 1,
+  }))
+}
+
+function getTodayString(): string {
+  return new Date().toISOString().split('T')[0]
 }
 
 // Initial data
@@ -155,7 +197,8 @@ const initialUser: User = {
 const initialCharacter: Character = {
   id: 'char-1',
   name: '小探险家',
-  avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=explorer',
+  avatar: '🐱',
+  avatarType: 'animal',
   level: 8,
   skills: [
     { id: 'skill-1', name: '数学能力', icon: 'Calculator', level: 5, maxLevel: 10, description: '提升数学计算能力' },
@@ -190,12 +233,7 @@ const initialSubjects: Subject[] = [
   { id: 'music', name: '音乐节奏', icon: 'Music', color: '#7C3AED', progress: 25, totalLevels: 10, completedLevels: 3 },
 ]
 
-const initialDailyTasks: DailyTask[] = [
-  { id: 'task-1', title: '学习数学', description: '完成1个数学关卡', icon: 'Calculator', reward: { gold: 50, xp: 100, stars: 1 }, completed: true, progress: 1, target: 1 },
-  { id: 'task-2', title: '阅读英语', description: '完成1个英语关卡', icon: 'BookOpen', reward: { gold: 50, xp: 100, stars: 1 }, completed: false, progress: 0, target: 1 },
-  { id: 'task-3', title: '记忆挑战', description: '完成1个记忆游戏', icon: 'Brain', reward: { gold: 30, xp: 60, stars: 1 }, completed: false, progress: 0, target: 1 },
-  { id: 'task-4', title: '创意创作', description: '完成1次绘画', icon: 'Palette', reward: { gold: 40, xp: 80, stars: 1 }, completed: true, progress: 1, target: 1 },
-]
+const initialDailyTasks: DailyTask[] = generateDailyTasks()
 
 export const useKidVerseStore = create<KidVerseState>()(
   persist(
@@ -207,6 +245,7 @@ export const useKidVerseStore = create<KidVerseState>()(
       levelProgress: {},
       subjects: initialSubjects,
       dailyTasks: initialDailyTasks,
+      lastTaskRefresh: getTodayString(),
       settings: {
         soundEnabled: true,
         musicEnabled: true,
@@ -215,6 +254,30 @@ export const useKidVerseStore = create<KidVerseState>()(
         contentFilter: 'all',
       },
       isParentMode: false,
+
+      refreshDailyTasks: () => {
+        set((state) => {
+          const today = getTodayString()
+          if (state.lastTaskRefresh === today) return state
+          
+          return {
+            dailyTasks: generateDailyTasks(),
+            lastTaskRefresh: today,
+          }
+        })
+      },
+
+      updateCharacterAvatar: (avatar: string, avatarType: 'animal' | 'default') => {
+        set((state) => ({
+          character: {
+            ...state.character,
+            avatar,
+            avatarType,
+          },
+        }))
+      },
+
+      getAnimalAvatars: () => animalAvatars,
 
       addXP: (amount: number) => {
         set((state) => {
