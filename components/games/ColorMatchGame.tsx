@@ -21,7 +21,7 @@ interface ColorItem {
 }
 
 const ColorMatchGame = ({ onBack }: ColorMatchGameProps) => {
-  const { addXP, addGold, addStars } = useKidVerseStore()
+  const { addXP, addGold, addStars, addGameRecord, addPlayTime } = useKidVerseStore()
   const [colorItems, setColorItems] = useState<ColorItem[]>([])
   const [selectedColor, setSelectedColor] = useState<string | null>(null)
   const [score, setScore] = useState(0)
@@ -29,6 +29,7 @@ const ColorMatchGame = ({ onBack }: ColorMatchGameProps) => {
   const [gameOver, setGameOver] = useState(false)
   const [showConfetti, setShowConfetti] = useState(false)
   const [floatingParticles, setFloatingParticles] = useState<{id: number; x: number; y: number}[]>([])
+  const [startTime] = useState(Date.now())
 
   // Initialize game
   const initGame = useCallback(() => {
@@ -58,11 +59,19 @@ const ColorMatchGame = ({ onBack }: ColorMatchGameProps) => {
       addXP(score + 25)
       addGold(Math.floor(score / 2))
       addStars(score >= 80 ? 3 : score >= 60 ? 2 : 1)
+      const timeSpent = Math.ceil((Date.now() - startTime) / 60000)
+      addPlayTime(timeSpent)
+      addGameRecord({
+        gameId: 'color-match',
+        score: Math.round((matches / colors.length) * 100),
+        completed: true,
+        timeSpent: timeSpent,
+      })
       if (score >= 80) {
         setShowConfetti(true)
       }
     }
-  }, [matches, score, addXP, addGold, addStars])
+  }, [matches, score, addXP, addGold, addStars, startTime, addGameRecord, addPlayTime])
 
   const createParticles = (x: number, y: number) => {
     const particles = Array.from({ length: 10 }, (_, i) => ({

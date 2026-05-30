@@ -17,7 +17,7 @@ interface DraggedLetter {
 }
 
 const LetterDragGame = ({ onBack }: LetterDragGameProps) => {
-  const { addXP, addGold, addStars } = useKidVerseStore()
+  const { addXP, addGold, addStars, addGameRecord, addPlayTime } = useKidVerseStore()
   const [currentWord, setCurrentWord] = useState(0)
   const [score, setScore] = useState(0)
   const [userAnswer, setUserAnswer] = useState<string[]>([])
@@ -27,6 +27,7 @@ const LetterDragGame = ({ onBack }: LetterDragGameProps) => {
   const [isCorrect, setIsCorrect] = useState(false)
   const [gameOver, setGameOver] = useState(false)
   const [showConfetti, setShowConfetti] = useState(false)
+  const [startTime] = useState(Date.now())
 
   const word = letterWords[currentWord]
 
@@ -84,16 +85,27 @@ const LetterDragGame = ({ onBack }: LetterDragGameProps) => {
         setCurrentWord(prev => prev + 1)
         setShowResult(false)
       } else {
+        const timeSpent = Math.ceil((Date.now() - startTime) / 60000)
+        const finalScore = score + 30
+        const accuracy = Math.round((finalScore / (letterWords.length * 30)) * 100)
+        
         setGameOver(true)
-        addXP(score + 30)
-        addGold(Math.floor(score / 2))
-        addStars(score >= 80 ? 3 : score >= 60 ? 2 : 1)
-        if (score >= 80) {
+        addXP(finalScore)
+        addGold(Math.floor(finalScore / 2))
+        addStars(finalScore >= 80 ? 3 : finalScore >= 60 ? 2 : 1)
+        addPlayTime(timeSpent)
+        addGameRecord({
+          gameId: 'english-letter-drag',
+          score: accuracy,
+          completed: true,
+          timeSpent: timeSpent,
+        })
+        if (finalScore >= 80) {
           setShowConfetti(true)
         }
       }
     }, 1500)
-  }, [userAnswer, word.word, currentWord, score, addXP, addGold, addStars])
+  }, [userAnswer, word.word, currentWord, score, startTime, addXP, addGold, addStars, addPlayTime, addGameRecord])
 
   const resetGame = () => {
     setCurrentWord(0)

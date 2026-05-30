@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowLeft, Check, X, Smile, Frown, Angry, HelpCircle, Sparkles } from 'lucide-react'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
+import { useKidVerseStore } from '@/store/useStore'
 
 interface EmotionGameProps {
   onBack: () => void
@@ -77,12 +78,14 @@ const encouragementMessages = [
 ]
 
 const EmotionGame = ({ onBack }: EmotionGameProps) => {
+  const { addGameRecord, addPlayTime } = useKidVerseStore()
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null)
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null)
   const [score, setScore] = useState(0)
   const [showResult, setShowResult] = useState(false)
   const [showEncouragement, setShowEncouragement] = useState(false)
+  const [startTime] = useState(Date.now())
 
   const currentQuestion = emotionQuestions[currentQuestionIndex]
 
@@ -105,10 +108,18 @@ const EmotionGame = ({ onBack }: EmotionGameProps) => {
         setSelectedAnswer(null)
         setIsCorrect(null)
       } else {
+        const timeSpent = Math.ceil((Date.now() - startTime) / 60000)
+        addPlayTime(timeSpent)
+        addGameRecord({
+          gameId: 'emotion-recognition',
+          score: Math.round((score / emotionQuestions.length) * 100),
+          completed: true,
+          timeSpent: timeSpent,
+        })
         setShowResult(true)
       }
     }, 2000)
-  }, [selectedAnswer, currentQuestion, currentQuestionIndex])
+  }, [selectedAnswer, currentQuestion, currentQuestionIndex, score, startTime, addGameRecord, addPlayTime])
 
   const handleRestart = () => {
     setCurrentQuestionIndex(0)

@@ -19,12 +19,13 @@ interface PuzzlePiece {
 }
 
 const PuzzleGame = ({ onBack }: PuzzleGameProps) => {
-  const { addXP, addGold, addStars } = useKidVerseStore()
+  const { addXP, addGold, addStars, addGameRecord, addPlayTime } = useKidVerseStore()
   const [currentImage, setCurrentImage] = useState(0)
   const [pieces, setPieces] = useState<PuzzlePiece[]>([])
   const [score, setScore] = useState(0)
   const [gameOver, setGameOver] = useState(false)
   const [showConfetti, setShowConfetti] = useState(false)
+  const [startTime] = useState(Date.now())
 
   const image = puzzleImages[currentImage]
   const gridSize = Math.sqrt(image.pieces)
@@ -59,12 +60,20 @@ const PuzzleGame = ({ onBack }: PuzzleGameProps) => {
         addXP(score + 30)
         addGold(Math.floor(score / 2))
         addStars(score >= 50 ? 3 : score >= 30 ? 2 : 1)
+        const timeSpent = Math.ceil((Date.now() - startTime) / 60000)
+        addPlayTime(timeSpent)
+        addGameRecord({
+          gameId: 'puzzle',
+          score: Math.round((score / (image.pieces * 5)) * 100),
+          completed: true,
+          timeSpent: timeSpent,
+        })
         if (score >= 50) {
           setShowConfetti(true)
         }
       }, 500)
     }
-  }, [pieces, score, addXP, addGold, addStars])
+  }, [pieces, score, addXP, addGold, addStars, startTime, addGameRecord, addPlayTime, image.pieces])
 
   const handlePieceClick = useCallback((pieceId: number) => {
     const clickedPiece = pieces.find(p => p.id === pieceId)

@@ -169,6 +169,11 @@ export default function Home() {
               <TopNav
                 onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
                 onParentMode={handleParentMode}
+                onLogoClick={() => setCurrentView('dashboard')}
+                onAvatarClick={() => setCurrentView('character')}
+                onAchievementsClick={() => setCurrentView('achievements')}
+                onTasksClick={() => setCurrentView('tasks')}
+                onCharacterClick={() => setCurrentView('character')}
               />
               
               {currentView === 'dashboard' && (

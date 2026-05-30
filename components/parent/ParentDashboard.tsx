@@ -24,19 +24,16 @@ interface ParentDashboardProps {
 }
 
 const ParentDashboard = ({ onClose }: ParentDashboardProps) => {
-  const { user, subjects, achievements, settings, updateSettings } = useKidVerseStore()
+  const { user, subjects, achievements, settings, updateSettings, gameRecords, getWeeklyStats, getAverageAccuracy } = useKidVerseStore()
   const [activeTab, setActiveTab] = useState('overview')
 
-  const weeklyData = [30, 45, 20, 55, 40, 60, 35]
-  const dailyData = [
-    { day: '周一', time: 30, correct: 85 },
-    { day: '周二', time: 45, correct: 90 },
-    { day: '周三', time: 20, correct: 80 },
-    { day: '周四', time: 55, correct: 95 },
-    { day: '周五', time: 40, correct: 88 },
-    { day: '周六', time: 60, correct: 92 },
-    { day: '周日', time: 35, correct: 86 },
-  ]
+  const weeklyData = getWeeklyStats()
+  const averageAccuracy = getAverageAccuracy()
+
+  const weeklyChartData = weeklyData.map(day => ({
+    ...day,
+    height: day.time > 0 ? Math.max((day.time / 60) * 100, 10) : 10
+  }))
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-100 to-slate-200 p-4">
@@ -76,7 +73,7 @@ const ParentDashboard = ({ onClose }: ParentDashboardProps) => {
             <Target className="w-5 h-5 text-kid-green" />
             <span className="text-sm text-gray-500">平均正确率</span>
           </div>
-          <div className="text-2xl font-bold text-gray-800">92%</div>
+          <div className="text-2xl font-bold text-gray-800">{averageAccuracy}%</div>
         </Card>
         
         <Card className="p-4">
@@ -118,16 +115,16 @@ const ParentDashboard = ({ onClose }: ParentDashboardProps) => {
           <Card className="p-4">
             <h4 className="font-bold text-gray-800 mb-4">本周学习时长</h4>
             <div className="flex items-end justify-between h-32 gap-2">
-              {weeklyData.map((value, index) => (
+              {weeklyChartData.map((data, index) => (
                 <div key={index} className="flex-1 flex flex-col items-center gap-1">
                   <motion.div
                     className="w-full bg-gradient-to-t from-kid-blue to-kid-purple rounded-t-lg"
                     initial={{ height: 0 }}
-                    animate={{ height: `${value}%` }}
+                    animate={{ height: `${data.height}%` }}
                     transition={{ duration: 0.5, delay: index * 0.1 }}
                     style={{ minHeight: '10px' }}
                   />
-                  <span className="text-xs text-gray-500">{dailyData[index].day}</span>
+                  <span className="text-xs text-gray-500">{data.day}</span>
                 </div>
               ))}
             </div>
@@ -137,8 +134,8 @@ const ParentDashboard = ({ onClose }: ParentDashboardProps) => {
           <Card className="p-4">
             <h4 className="font-bold text-gray-800 mb-4">每日详情</h4>
             <div className="space-y-3">
-              {dailyData.map((day) => (
-                <div key={day.day} className="flex items-center justify-between">
+              {weeklyData.map((day, index) => (
+                <div key={index} className="flex items-center justify-between">
                   <span className="text-gray-600">{day.day}</span>
                   <div className="flex items-center gap-4">
                     <div className="flex items-center gap-1">

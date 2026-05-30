@@ -6,9 +6,14 @@ import Image from 'next/image'
 interface TopNavProps {
   onMenuToggle: () => void
   onParentMode: () => void
+  onLogoClick: () => void
+  onAvatarClick: () => void
+  onAchievementsClick: () => void
+  onTasksClick: () => void
+  onCharacterClick: () => void
 }
 
-const TopNav = ({ onMenuToggle, onParentMode }: TopNavProps) => {
+const TopNav = ({ onMenuToggle, onParentMode, onLogoClick, onAvatarClick, onAchievementsClick, onTasksClick, onCharacterClick }: TopNavProps) => {
   const { user, character } = useKidVerseStore()
 
   return (
@@ -20,55 +25,66 @@ const TopNav = ({ onMenuToggle, onParentMode }: TopNavProps) => {
       <div className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <motion.div
+          <motion.button
+            onClick={onLogoClick}
             animate={{ rotate: [0, 5, -5, 0] }}
             transition={{ duration: 2, repeat: Infinity }}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
           >
             <span className="text-2xl">🌟</span>
             <span className="font-bold text-lg gradient-text">KidVerse</span>
-          </motion.div>
+          </motion.button>
           
           {/* User info */}
           <div className="flex items-center gap-4">
             {/* Stats */}
             <div className="hidden md:flex items-center gap-4">
-              <motion.div
+              <motion.button
+                onClick={onAchievementsClick}
                 whileHover={{ scale: 1.1 }}
-                className="flex items-center gap-1 bg-kid-yellow/10 px-3 py-1.5 rounded-full"
+                whileTap={{ scale: 0.95 }}
+                className="flex items-center gap-1 bg-kid-yellow/10 px-3 py-1.5 rounded-full cursor-pointer"
               >
                 <Star className="w-4 h-4 text-kid-yellow fill-kid-yellow" />
                 <span className="font-medium text-kid-yellow">{user.stars}</span>
-              </motion.div>
+              </motion.button>
               
-              <motion.div
+              <motion.button
+                onClick={onTasksClick}
                 whileHover={{ scale: 1.1 }}
-                className="flex items-center gap-1 bg-kid-orange/10 px-3 py-1.5 rounded-full"
+                whileTap={{ scale: 0.95 }}
+                className="flex items-center gap-1 bg-kid-orange/10 px-3 py-1.5 rounded-full cursor-pointer"
               >
                 <Coins className="w-4 h-4 text-kid-orange" />
                 <span className="font-medium text-kid-orange">{user.gold}</span>
-              </motion.div>
+              </motion.button>
               
-              <motion.div
+              <motion.button
+                onClick={onTasksClick}
                 whileHover={{ scale: 1.1 }}
-                className="flex items-center gap-1 bg-kid-red/10 px-3 py-1.5 rounded-full"
+                whileTap={{ scale: 0.95 }}
+                className="flex items-center gap-1 bg-kid-red/10 px-3 py-1.5 rounded-full cursor-pointer"
               >
                 <Flame className="w-4 h-4 text-kid-red" />
                 <span className="font-medium text-kid-red">{user.streak}天</span>
-              </motion.div>
+              </motion.button>
               
-              <motion.div
+              <motion.button
+                onClick={onCharacterClick}
                 whileHover={{ scale: 1.1 }}
-                className="flex items-center gap-1 bg-kid-purple/10 px-3 py-1.5 rounded-full"
+                whileTap={{ scale: 0.95 }}
+                className="flex items-center gap-1 bg-kid-purple/10 px-3 py-1.5 rounded-full cursor-pointer"
               >
                 <Zap className="w-4 h-4 text-kid-purple" />
                 <span className="font-medium text-kid-purple">Lv.{character.level}</span>
-              </motion.div>
+              </motion.button>
             </div>
             
             {/* Avatar */}
-            <motion.div
+            <motion.button
+              onClick={onAvatarClick}
               whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               className="relative cursor-pointer"
             >
               <div className="w-10 h-10 md:w-12 md:h-12 rounded-full overflow-hidden border-2 border-kid-blue shadow-lg bg-white flex items-center justify-center">
@@ -86,7 +102,7 @@ const TopNav = ({ onMenuToggle, onParentMode }: TopNavProps) => {
                 )}
               </div>
               <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-kid-green rounded-full border-2 border-white" />
-            </motion.div>
+            </motion.button>
             
             {/* Parent mode button */}
             <motion.button
@@ -112,22 +128,38 @@ const TopNav = ({ onMenuToggle, onParentMode }: TopNavProps) => {
         
         {/* Mobile stats */}
         <div className="md:hidden flex items-center justify-center gap-4 mt-3 pt-3 border-t border-gray-100">
-          <div className="flex items-center gap-1">
+          <motion.button
+            onClick={onAchievementsClick}
+            whileTap={{ scale: 0.9 }}
+            className="flex items-center gap-1"
+          >
             <Star className="w-4 h-4 text-kid-yellow fill-kid-yellow" />
             <span className="text-sm font-medium">{user.stars}</span>
-          </div>
-          <div className="flex items-center gap-1">
+          </motion.button>
+          <motion.button
+            onClick={onTasksClick}
+            whileTap={{ scale: 0.9 }}
+            className="flex items-center gap-1"
+          >
             <Coins className="w-4 h-4 text-kid-orange" />
             <span className="text-sm font-medium">{user.gold}</span>
-          </div>
-          <div className="flex items-center gap-1">
+          </motion.button>
+          <motion.button
+            onClick={onTasksClick}
+            whileTap={{ scale: 0.9 }}
+            className="flex items-center gap-1"
+          >
             <Flame className="w-4 h-4 text-kid-red" />
             <span className="text-sm font-medium">{user.streak}天</span>
-          </div>
-          <div className="flex items-center gap-1">
+          </motion.button>
+          <motion.button
+            onClick={onCharacterClick}
+            whileTap={{ scale: 0.9 }}
+            className="flex items-center gap-1"
+          >
             <Zap className="w-4 h-4 text-kid-purple" />
             <span className="text-sm font-medium">Lv.{character.level}</span>
-          </div>
+          </motion.button>
         </div>
       </div>
     </motion.header>

@@ -140,6 +140,9 @@ interface KidVerseState {
   refreshDailyTasks: () => void
   updateCharacterAvatar: (avatar: string, avatarType: 'animal' | 'default') => void
   getAnimalAvatars: () => typeof animalAvatars
+  addGameRecord: (record: Omit<GameRecord, 'timestamp'>) => void
+  getWeeklyStats: () => { day: string; time: number; correct: number }[]
+  getAverageAccuracy: () => number
 }
 
 const animalAvatars = [
@@ -422,6 +425,59 @@ export const useKidVerseStore = create<KidVerseState>()(
             totalPlayTime: state.user.totalPlayTime + minutes,
           },
         }))
+      },
+
+      addGameRecord: (record) => {
+        set((state) => ({
+          gameRecords: [
+            ...state.gameRecords,
+            {
+              ...record,
+              timestamp: new Date().toISOString(),
+            },
+          ],
+        }))
+      },
+
+      getWeeklyStats: () => {
+        const state = get()
+        const today = new Date()
+        const dayNames = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
+        
+        const stats = []
+        for (let i = 6; i >= 0; i--) {
+          const date = new Date(today)
+          date.setDate(date.getDate() - i)
+          const dateStr = date.toISOString().split('T')[0]
+          
+          const dayRecords = state.gameRecords.filter(
+            (r) => r.timestamp.split('T')[0] === dateStr
+          )
+          
+          const totalTime = dayRecords.reduce((sum, r) => sum + r.timeSpent, 0)
+          const avgCorrect = dayRecords.length > 0
+            ? Math.round(dayRecords.reduce((sum, r) => sum + (r.score / 100) * 100, 0) / dayRecords.length)
+            : 0
+          
+          stats.push({
+            day: dayNames[date.getDay()],
+            time: totalTime,
+            correct: avgCorrect,
+          })
+        }
+        
+        return stats
+      },
+
+      getAverageAccuracy: () => {
+        const state = get()
+        if (state.gameRecords.length === 0) return 0
+        
+        const totalAccuracy = state.gameRecords.reduce(
+          (sum, r) => sum + (r.score / 100) * 100,
+          0
+        )
+        return Math.round(totalAccuracy / state.gameRecords.length)
       },
     }),
     {

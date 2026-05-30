@@ -21,7 +21,7 @@ interface CardItem {
 }
 
 const MemoryCardsGame = ({ onBack }: MemoryCardsGameProps) => {
-  const { addXP, addGold, addStars } = useKidVerseStore()
+  const { addXP, addGold, addStars, addGameRecord, addPlayTime } = useKidVerseStore()
   const [cards, setCards] = useState<CardItem[]>([])
   const [flippedCards, setFlippedCards] = useState<number[]>([])
   const [matches, setMatches] = useState(0)
@@ -29,6 +29,7 @@ const MemoryCardsGame = ({ onBack }: MemoryCardsGameProps) => {
   const [timeLeft, setTimeLeft] = useState(60)
   const [gameOver, setGameOver] = useState(false)
   const [showConfetti, setShowConfetti] = useState(false)
+  const [startTime] = useState(Date.now())
 
   // Initialize game
   const initGame = useCallback(() => {
@@ -76,11 +77,19 @@ const MemoryCardsGame = ({ onBack }: MemoryCardsGameProps) => {
       addXP(finalScore + 30)
       addGold(Math.floor(finalScore / 2))
       addStars(finalScore >= 150 ? 3 : finalScore >= 100 ? 2 : 1)
+      const timeSpent = Math.ceil((Date.now() - startTime) / 60000)
+      addPlayTime(timeSpent)
+      addGameRecord({
+        gameId: 'memory-cards',
+        score: Math.round((matches / animalCards.length) * 100),
+        completed: true,
+        timeSpent: timeSpent,
+      })
       if (finalScore >= 150) {
         setShowConfetti(true)
       }
     }
-  }, [matches, score, timeLeft, addXP, addGold, addStars])
+  }, [matches, score, timeLeft, addXP, addGold, addStars, startTime, addGameRecord, addPlayTime])
 
   const handleCardClick = useCallback((index: number) => {
     if (flippedCards.length >= 2) return

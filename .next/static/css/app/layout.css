@@ -2396,6 +2396,10 @@ body {
   color: rgb(255 255 255 / var(--tw-text-opacity, 1));
 }
 
+.hover\:opacity-80:hover {
+  opacity: 0.8;
+}
+
 .hover\:shadow-glow-blue:hover {
   --tw-shadow: 0 0 20px rgba(79, 70, 229, 0.4);
   --tw-shadow-colored: 0 0 20px var(--tw-shadow-color);

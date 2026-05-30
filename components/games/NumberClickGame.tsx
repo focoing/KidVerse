@@ -12,7 +12,7 @@ interface NumberClickGameProps {
 }
 
 const NumberClickGame = ({ onBack }: NumberClickGameProps) => {
-  const { addXP, addGold, addStars } = useKidVerseStore()
+  const { addXP, addGold, addStars, addGameRecord, addPlayTime } = useKidVerseStore()
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [score, setScore] = useState(0)
   const [selectedNumber, setSelectedNumber] = useState<number | null>(null)
@@ -20,6 +20,7 @@ const NumberClickGame = ({ onBack }: NumberClickGameProps) => {
   const [isCorrect, setIsCorrect] = useState(false)
   const [gameOver, setGameOver] = useState(false)
   const [showConfetti, setShowConfetti] = useState(false)
+  const [startTime] = useState(Date.now())
 
   const question = numberGameQuestions[currentQuestion]
 
@@ -43,17 +44,28 @@ const NumberClickGame = ({ onBack }: NumberClickGameProps) => {
           setSelectedNumber(null)
           setShowResult(false)
         } else {
+          const timeSpent = Math.ceil((Date.now() - startTime) / 60000)
+          const finalScore = score + 20
+          const accuracy = Math.round((finalScore / (numberGameQuestions.length * 10)) * 100)
+          
           setGameOver(true)
-          addXP(score + 20)
-          addGold(Math.floor(score / 2))
-          addStars(score >= 60 ? 3 : score >= 40 ? 2 : 1)
-          if (score >= 60) {
+          addXP(finalScore)
+          addGold(Math.floor(finalScore / 2))
+          addStars(finalScore >= 60 ? 3 : finalScore >= 40 ? 2 : 1)
+          addPlayTime(timeSpent)
+          addGameRecord({
+            gameId: 'math-number-click',
+            score: accuracy,
+            completed: true,
+            timeSpent: timeSpent,
+          })
+          if (finalScore >= 60) {
             setShowConfetti(true)
           }
         }
       }, 1000)
     }, 300)
-  }, [currentQuestion, question.answer, selectedNumber, showResult, score, addXP, addGold, addStars])
+  }, [currentQuestion, question.answer, selectedNumber, showResult, score, startTime, addXP, addGold, addStars, addPlayTime, addGameRecord])
 
   const resetGame = () => {
     setCurrentQuestion(0)
